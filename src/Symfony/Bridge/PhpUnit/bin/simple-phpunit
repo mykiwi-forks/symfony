@@ -46,6 +46,14 @@ $COMPOSER = file_exists($COMPOSER = $oldPwd.'/composer.phar') || ($COMPOSER = rt
     ? $PHP.' '.escapeshellarg($COMPOSER)
     : 'composer';
 
+$SYMFONY_PHPUNIT_REQUIRE = getenv('SYMFONY_PHPUNIT_REQUIRE');
+if (!$SYMFONY_PHPUNIT_REQUIRE && PHP_VERSION_ID >= 70200) {
+    $SYMFONY_PHPUNIT_REQUIRE = 'symfony/flex';
+}
+if ($SYMFONY_PHPUNIT_REQUIRE) {
+    passthru("$COMPOSER require --no-update $SYMFONY_PHPUNIT_REQUIRE");
+}
+
 if (false === $SYMFONY_PHPUNIT_REMOVE = getenv('SYMFONY_PHPUNIT_REMOVE')) {
     $SYMFONY_PHPUNIT_REMOVE = 'phpspec/prophecy symfony/yaml';
 }
@@ -77,7 +85,7 @@ if (!file_exists("$PHPUNIT_DIR/phpunit-$PHPUNIT_VERSION/phpunit") || md5_file(__
     $zip->extractTo(getcwd());
     $zip->close();
     chdir("phpunit-$PHPUNIT_VERSION");
-    passthru("$COMPOSER remove --no-update ".$SYMFONY_PHPUNIT_REMOVE);
+    passthru("$COMPOSER remove --no-update $SYMFONY_PHPUNIT_REMOVE");
     if (5.1 <= $PHPUNIT_VERSION && $PHPUNIT_VERSION < 5.4) {
         passthru("$COMPOSER require --no-update phpunit/phpunit-mock-objects \"~3.1.0\"");
     }
